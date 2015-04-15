@@ -128,11 +128,12 @@ namespace CrudXL
                     if (System.Text.RegularExpressions.Regex.IsMatch(str, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
                     {
 
-                        exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
+
                         HttpClient client = new HttpClient(httpClientHandler);
                         response = client.GetAsync(str).Result;
                         driver.Navigate().GoToUrl(str);
                         driver.Manage().Window.Maximize();
+                        exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
                         act = driver.Url.ToString();
                         try
                         {
@@ -144,7 +145,7 @@ namespace CrudXL
                             xlWorkSheetNew.Cells[rCnt, 3] = act;
                             xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
                             xlWorkSheetNew.Cells[rCnt, 5] = "*****PASSED*****";
-                            if (MessageBox.Show("SOURCE URL: "
+/*                            if (MessageBox.Show("SOURCE URL: "
                                 + str
                                 + "\nEXPECTED DESTINATION URL: "
                                 + exp
@@ -180,7 +181,7 @@ namespace CrudXL
                                 releaseObject(xlApp);
 
                                 Application.Exit();
-                            }
+                            } */
 
                         }
                         catch (AssertionException AE)
@@ -237,16 +238,12 @@ namespace CrudXL
                             }
 
                         }
-                        
-/*                        IWebDriver driver = new RemoteWebDriver(DesiredCapabilities.HtmlUnit());
-                        driver.Navigate().GoToUrl(str);
-                        driver.Manage().Window.Maximize();
-                        driver.Close(); */
                     }
                 }
             }
 
 
+            MessageBox.Show("TESTS COMPLETED");
             xlWorkBookNew.SaveAs("z:\\Results-Redirects", Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
             xlWorkBookNew.Close(true, misValue, misValue);
             xlWorkBook.Close(true, null, null);
@@ -255,6 +252,8 @@ namespace CrudXL
 
             releaseObject(xlWorkSheet);
             releaseObject(xlWorkBook);
+            releaseObject(xlWorkSheetNew);
+            releaseObject(xlWorkBookNew);
             releaseObject(xlApp);
         }
 
