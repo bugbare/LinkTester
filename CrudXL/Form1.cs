@@ -65,8 +65,7 @@ namespace CrudXL
             DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
 	        if (result == DialogResult.OK) // Test result.
 	        {
-		        string file = openFileDialog1.FileName;
-            	        
+		        string file = openFileDialog1.FileName;       
 
                 Excel.Application xlApp;
                 Excel.Workbook xlWorkBook;
@@ -83,7 +82,8 @@ namespace CrudXL
                 string exp;
                 string act;
                 int rCnt = 0;
-                int cCnt = 0;
+                string resultFile = string.Format("Redirects-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
+	                            DateTime.Now);
 
                 xlApp = new Excel.Application();
                 xlWorkBook = xlApp.Workbooks.Open(file, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
@@ -124,128 +124,125 @@ namespace CrudXL
            
                 for (rCnt = 1; rCnt <= range.Rows.Count; rCnt++)
                 {
-                
-                    for (cCnt = 1; cCnt <= range.Columns.Count; cCnt++)
-                    {
-                        str = (string)(range.Cells[rCnt, cCnt] as Excel.Range).Value2;
+
+                    str = (string)(range.Cells[rCnt, 1] as Excel.Range).Value2;
                     
-                        string sPattern = "http://www.cityindexisrael.co.il/";
+                    string sPattern = "http://www.cityindex.co";
 
                         
-                        if (System.Text.RegularExpressions.Regex.IsMatch(str, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    if (System.Text.RegularExpressions.Regex.IsMatch(str, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    {
+
+
+                        HttpClient client = new HttpClient(httpClientHandler);
+                        response = client.GetAsync(str).Result;
+                        driver.Navigate().GoToUrl(str);
+                        driver.Manage().Window.Maximize();
+                        exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
+                        act = driver.Url.ToString();
+                        try
                         {
-
-
-                            HttpClient client = new HttpClient(httpClientHandler);
-                            response = client.GetAsync(str).Result;
-                            driver.Navigate().GoToUrl(str);
-                            driver.Manage().Window.Maximize();
-                            exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
-                            act = driver.Url.ToString();
-                            try
+                            Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
+                            StringAssert.AreEqualIgnoringCase(exp,act);
+                            xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
+                            xlWorkSheetNew.Cells[rCnt, 1] = str;
+                            xlWorkSheetNew.Cells[rCnt, 2] = exp;
+                            xlWorkSheetNew.Cells[rCnt, 3] = act;
+                            xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
+                            xlWorkSheetNew.Cells[rCnt, 5] = "*****PASSED*****";
+/*                            if (MessageBox.Show("SOURCE URL: "
+                                + str
+                                + "\nEXPECTED DESTINATION URL: "
+                                + exp
+                                + "\nACTUAL DESTINATION URL: "
+                                + act 
+                                +"\nROW: " 
+                                + rCnt 
+                                +"\nHTTP RESPONSE CODE: "
+                                + response.StatusCode.ToString() 
+                                + "\nLOCATION: "  
+                                + response.Headers.Location.ToString() 
+                                + "\nREASON: "
+                                + response.ReasonPhrase.ToString()
+                                + "\nCONNECTION: "
+                                + response.Headers.Connection
+                                , "*****PASSED*****",
+                                MessageBoxButtons.OKCancel,
+                                MessageBoxIcon.None,
+                                MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
                             {
-                                Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
-                                StringAssert.AreEqualIgnoringCase(exp,act);
-                                xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
-                                xlWorkSheetNew.Cells[rCnt, 1] = str;
-                                xlWorkSheetNew.Cells[rCnt, 2] = exp;
-                                xlWorkSheetNew.Cells[rCnt, 3] = act;
-                                xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
-                                xlWorkSheetNew.Cells[rCnt, 5] = "*****PASSED*****";
-    /*                            if (MessageBox.Show("SOURCE URL: "
-                                    + str
-                                    + "\nEXPECTED DESTINATION URL: "
-                                    + exp
-                                    + "\nACTUAL DESTINATION URL: "
-                                    + act 
-                                    +"\nROW: " 
-                                    + rCnt 
-                                    +"\nHTTP RESPONSE CODE: "
-                                    + response.StatusCode.ToString() 
-                                    + "\nLOCATION: "  
-                                    + response.Headers.Location.ToString() 
-                                    + "\nREASON: "
-                                    + response.ReasonPhrase.ToString()
-                                    + "\nCONNECTION: "
-                                    + response.Headers.Connection
-                                    , "*****PASSED*****",
-                                    MessageBoxButtons.OKCancel,
-                                    MessageBoxIcon.None,
-                                    MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
-                                {
-                                    xlWorkBookNew.SaveAs("z:\\Results-Redirects", Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
-                                    xlWorkBookNew.Close(true, misValue, misValue);
-                                    xlWorkBook.Close(true, null, null);
-                                    xlApp.Quit();
-                                    driver.Quit();
+                                xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                                xlWorkBookNew.Close(true, misValue, misValue);
+                                xlWorkBook.Close(true, null, null);
+                                xlApp.Quit();
+                                driver.Quit();
 
-                                    releaseObject(xlWorkSheet);
-                                    releaseObject(xlWorkBook);
-                                    releaseObject(xlWorkSheetNew);
-                                    releaseObject(xlWorkBookNew);
-                                    releaseObject(xlApp);
+                                releaseObject(xlWorkSheet);
+                                releaseObject(xlWorkBook);
+                                releaseObject(xlWorkSheetNew);
+                                releaseObject(xlWorkBookNew);
+                                releaseObject(xlApp);
 
-                                    Application.Exit();
-                                } */
+                                Application.Exit();
+                            } */
 
-                            }
-                            catch (AssertionException AE)
-                            {
-                                xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
-                                xlWorkSheetNew.Cells[rCnt, 1] = str;
-                                xlWorkSheetNew.Cells[rCnt, 2] = exp;
-                                xlWorkSheetNew.Cells[rCnt, 3] = act;
-                                xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
-                                xlWorkSheetNew.Cells[rCnt, 5] = "*****FAILED*****";
-                                if (MessageBox.Show("********************ERROR********************"
-                                    + "\nROW: "
-                                    + rCnt
-                                    + "\nSOURCE URL "
-                                    + str
-                                    + "\nEXPECTED DESTINATION URL: "
-                                    + exp
-                                    + "\nACTUAL DESTINATION URL: "
-                                    + act  
-                                    + "\nHTTP RESPONSE CODE: "
-                                    + response.StatusCode.ToString() 
-                                    + "\nLOCATION: "  
-                                    + response.Headers.Location.ToString() 
-                                    + "\nREASON: "
-                                    + response.ReasonPhrase.ToString()
-                                    + "\nCONNECTION: "
-                                    + response.Headers.Connection
-                                    + "\n============================================="
-                                    + "\nNUNIT Says: "
-                                    + "\n"
-                                    + AE.ToString(),
-                                    "*****FAILED*****",
-                                    MessageBoxButtons.OKCancel,
-                                    MessageBoxIcon.Error,
-                                    MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
-                                {
-                                    xlWorkBookNew.SaveAs("z:\\Results-Redirects", Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
-                                    xlWorkBookNew.Close(true, misValue, misValue);
-                                    xlWorkBook.Close(true, null, null);
-                                    xlApp.Quit();
-                                    driver.Quit();
-
-                                    releaseObject(xlWorkSheet);
-                                    releaseObject(xlWorkBook);
-                                    releaseObject(xlWorkSheetNew);
-                                    releaseObject(xlWorkBookNew);
-                                    releaseObject(xlApp);
-
-                                    Application.Exit();
-                                }
-
-                            }
                         }
-                    }
+                        catch (AssertionException AE)
+                        {
+                            xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
+                            xlWorkSheetNew.Cells[rCnt, 1] = str;
+                            xlWorkSheetNew.Cells[rCnt, 2] = exp;
+                            xlWorkSheetNew.Cells[rCnt, 3] = act;
+                            xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
+                            xlWorkSheetNew.Cells[rCnt, 5] = "*****FAILED*****";
+                            if (MessageBox.Show("********************ERROR********************"
+                                + "\nROW: "
+                                + rCnt
+                                + "\nSOURCE URL "
+                                + str
+                                + "\nEXPECTED DESTINATION URL: "
+                                + exp
+                                + "\nACTUAL DESTINATION URL: "
+                                + act  
+                                + "\nHTTP RESPONSE CODE: "
+                                + response.StatusCode.ToString() 
+                                + "\nLOCATION: "  
+                                + response.Headers.Location.ToString() 
+                                + "\nREASON: "
+                                + response.ReasonPhrase.ToString()
+                                + "\nCONNECTION: "
+                                + response.Headers.Connection
+                                + "\n============================================="
+                                + "\nNUNIT Says: "
+                                + "\n"
+                                + AE.ToString(),
+                                "*****FAILED*****",
+                                MessageBoxButtons.OKCancel,
+                                MessageBoxIcon.Error,
+                                MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
+                            {
+                                xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                                xlWorkBookNew.Close(true, misValue, misValue);
+                                xlWorkBook.Close(true, null, null);
+                                xlApp.Quit();
+                                driver.Quit();
+
+                                releaseObject(xlWorkSheet);
+                                releaseObject(xlWorkBook);
+                                releaseObject(xlWorkSheetNew);
+                                releaseObject(xlWorkBookNew);
+                                releaseObject(xlApp);
+
+                                Application.Exit();
+                            }
+
+                        }
+                    }                    
                 }
 
 
                 MessageBox.Show("TESTS COMPLETED");
-                xlWorkBookNew.SaveAs("z:\\Results-Redirects", Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                 xlWorkBookNew.Close(true, misValue, misValue);
                 xlWorkBook.Close(true, null, null);
                 xlApp.Quit();
