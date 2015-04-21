@@ -62,6 +62,20 @@ namespace CrudXL
         /* Read Excel Spreadsheet  */
         private void button2_Click(object sender, EventArgs e)
         {
+
+            string crNumber = this.changeRequest.Text;
+            string dcId = this.dataCentre.Text;
+
+/*            if (sPattern == "") {
+                sPattern = "http://www.cityindex.co.uk";
+                MessageBox.Show("Site to test: " + sPattern);
+            }
+            else
+            {
+                MessageBox.Show("Site to test: " + sPattern);
+            }*/
+
+            
             DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
 	        if (result == DialogResult.OK) // Test result.
 	        {
@@ -78,11 +92,11 @@ namespace CrudXL
 
                 HttpResponseMessage response;
 
-                string str;
+                string src;
                 string exp;
                 string act;
                 int rCnt = 0;
-                string resultFile = string.Format("Redirects-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
+                string resultFile = string.Format(crNumber+"-"+dcId+"-Redirects-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
 	                            DateTime.Now);
 
                 xlApp = new Excel.Application();
@@ -125,18 +139,18 @@ namespace CrudXL
                 for (rCnt = 1; rCnt <= range.Rows.Count; rCnt++)
                 {
 
-                    str = (string)(range.Cells[rCnt, 1] as Excel.Range).Value2;
+                    src = (string)(range.Cells[rCnt, 1] as Excel.Range).Value2;
+                    string sPattern = "http://";
                     
-                    string sPattern = "http://www.cityindex.co";
 
                         
-                    if (System.Text.RegularExpressions.Regex.IsMatch(str, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
-                    {
+                   if (System.Text.RegularExpressions.Regex.IsMatch(src, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    { 
 
 
                         HttpClient client = new HttpClient(httpClientHandler);
-                        response = client.GetAsync(str).Result;
-                        driver.Navigate().GoToUrl(str);
+                        response = client.GetAsync(src).Result;
+                        driver.Navigate().GoToUrl(src);
                         driver.Manage().Window.Maximize();
                         exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
                         act = driver.Url.ToString();
@@ -145,13 +159,13 @@ namespace CrudXL
                             Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
                             StringAssert.AreEqualIgnoringCase(exp,act);
                             xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
-                            xlWorkSheetNew.Cells[rCnt, 1] = str;
+                            xlWorkSheetNew.Cells[rCnt, 1] = src;
                             xlWorkSheetNew.Cells[rCnt, 2] = exp;
                             xlWorkSheetNew.Cells[rCnt, 3] = act;
                             xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
                             xlWorkSheetNew.Cells[rCnt, 5] = "*****PASSED*****";
 /*                            if (MessageBox.Show("SOURCE URL: "
-                                + str
+                                + src
                                 + "\nEXPECTED DESTINATION URL: "
                                 + exp
                                 + "\nACTUAL DESTINATION URL: "
@@ -190,7 +204,7 @@ namespace CrudXL
                         catch (AssertionException AE)
                         {
                             xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
-                            xlWorkSheetNew.Cells[rCnt, 1] = str;
+                            xlWorkSheetNew.Cells[rCnt, 1] = src;
                             xlWorkSheetNew.Cells[rCnt, 2] = exp;
                             xlWorkSheetNew.Cells[rCnt, 3] = act;
                             xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
@@ -198,8 +212,8 @@ namespace CrudXL
                             if (MessageBox.Show("********************ERROR********************"
                                 + "\nROW: "
                                 + rCnt
-                                + "\nSOURCE URL "
-                                + str
+                                + "\nSOURCE URL: "
+                                + src
                                 + "\nEXPECTED DESTINATION URL: "
                                 + exp
                                 + "\nACTUAL DESTINATION URL: "
@@ -221,9 +235,9 @@ namespace CrudXL
                                 MessageBoxIcon.Error,
                                 MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
                             {
+                                xlWorkBook.Close(true, null, null);
                                 xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                                 xlWorkBookNew.Close(true, misValue, misValue);
-                                xlWorkBook.Close(true, null, null);
                                 xlApp.Quit();
                                 driver.Quit();
 
@@ -236,23 +250,44 @@ namespace CrudXL
                                 Application.Exit();
                             }
 
+/*                            if (MessageBox.Show("Do you want to quit?", "DEBUG", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            {
+                                xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                                xlWorkBookNew.Close(true, misValue, misValue);
+                                xlWorkBook.Close(true, null, null);
+                                xlApp.Quit();
+                                driver.Quit();
+
+                                releaseObject(xlWorkSheet);
+                                releaseObject(xlWorkBook);
+                                releaseObject(xlWorkSheetNew);
+                                releaseObject(xlWorkBookNew);
+                                releaseObject(xlApp);
+
+                                Application.Exit(); 
+                            } */
                         }
                     }                    
                 }
 
 
                 MessageBox.Show("TESTS COMPLETED");
+                xlWorkBook.Close(true, null, null);
                 xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                 xlWorkBookNew.Close(true, misValue, misValue);
-                xlWorkBook.Close(true, null, null);
+
+
                 xlApp.Quit();
                 driver.Quit();
 
-                releaseObject(xlWorkSheet);
-                releaseObject(xlWorkBook);
                 releaseObject(xlWorkSheetNew);
+                releaseObject(xlWorkSheet);
                 releaseObject(xlWorkBookNew);
+                releaseObject(xlWorkBook);
                 releaseObject(xlApp);
+
+
+                Application.Exit();
             }
         }
 
