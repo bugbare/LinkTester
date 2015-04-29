@@ -65,6 +65,16 @@ namespace CrudXL
 
             string crNumber = this.changeRequest.Text;
             string dcId = this.dataCentre.Text;
+            HttpStatusCode redirectState;
+
+            if (redirect302.Checked)
+            {
+                redirectState = HttpStatusCode.Redirect;
+            }
+            else {
+
+                redirectState = HttpStatusCode.MovedPermanently;
+            }
 
 /*            if (sPattern == "") {
                 sPattern = "http://www.cityindex.co.uk";
@@ -156,7 +166,7 @@ namespace CrudXL
                         act = driver.Url.ToString();
                         try
                         {
-                            Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
+                            Assert.AreEqual(redirectState, response.StatusCode);
                             StringAssert.AreEqualIgnoringCase(exp,act);
                             xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
                             xlWorkSheetNew.Cells[rCnt, 1] = src;
@@ -220,12 +230,12 @@ namespace CrudXL
                                 + act  
                                 + "\nHTTP RESPONSE CODE: "
                                 + response.StatusCode.ToString() 
-                                + "\nLOCATION: "  
+                                /*+ "\nLOCATION: "  
                                 + response.Headers.Location.ToString() 
                                 + "\nREASON: "
                                 + response.ReasonPhrase.ToString()
                                 + "\nCONNECTION: "
-                                + response.Headers.Connection
+                                + response.Headers.Connection*/
                                 + "\n============================================="
                                 + "\nNUNIT Says: "
                                 + "\n"
@@ -318,6 +328,11 @@ namespace CrudXL
         private void button3_Click_1(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

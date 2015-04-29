@@ -36,13 +36,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.dataCentre = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.redirect301 = new System.Windows.Forms.RadioButton();
+            this.redirect302 = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.button1.Location = new System.Drawing.Point(12, 139);
+            this.button1.Location = new System.Drawing.Point(16, 209);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 0;
@@ -55,7 +57,7 @@
             this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.button2.Location = new System.Drawing.Point(107, 139);
+            this.button2.Location = new System.Drawing.Point(114, 209);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 1;
@@ -67,7 +69,7 @@
             // 
             this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button3.ForeColor = System.Drawing.Color.DarkRed;
-            this.button3.Location = new System.Drawing.Point(292, 139);
+            this.button3.Location = new System.Drawing.Point(305, 209);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 2;
@@ -119,13 +121,39 @@
             this.label2.TabIndex = 6;
             this.label2.Text = "Please enter the 3 character datacentre reference";
             // 
+            // redirect301
+            // 
+            this.redirect301.AutoSize = true;
+            this.redirect301.Checked = true;
+            this.redirect301.Location = new System.Drawing.Point(19, 137);
+            this.redirect301.Name = "redirect301";
+            this.redirect301.Size = new System.Drawing.Size(43, 17);
+            this.redirect301.TabIndex = 7;
+            this.redirect301.TabStop = true;
+            this.redirect301.Text = "301";
+            this.redirect301.UseVisualStyleBackColor = true;
+            this.redirect301.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            // 
+            // redirect302
+            // 
+            this.redirect302.AutoSize = true;
+            this.redirect302.Location = new System.Drawing.Point(19, 160);
+            this.redirect302.Name = "redirect302";
+            this.redirect302.Size = new System.Drawing.Size(43, 17);
+            this.redirect302.TabIndex = 8;
+            this.redirect302.TabStop = true;
+            this.redirect302.Text = "302";
+            this.redirect302.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button2;
-            this.ClientSize = new System.Drawing.Size(379, 174);
+            this.ClientSize = new System.Drawing.Size(446, 246);
+            this.Controls.Add(this.redirect302);
+            this.Controls.Add(this.redirect301);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dataCentre);
             this.Controls.Add(this.label1);
@@ -152,6 +180,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox dataCentre;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.RadioButton redirect301;
+        private System.Windows.Forms.RadioButton redirect302;
     }
 }
 
