@@ -38,6 +38,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.redirect301 = new System.Windows.Forms.RadioButton();
             this.redirect302 = new System.Windows.Forms.RadioButton();
+            this.statusOk = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // button1
@@ -127,10 +128,10 @@
             this.redirect301.Checked = true;
             this.redirect301.Location = new System.Drawing.Point(19, 137);
             this.redirect301.Name = "redirect301";
-            this.redirect301.Size = new System.Drawing.Size(43, 17);
+            this.redirect301.Size = new System.Drawing.Size(85, 17);
             this.redirect301.TabIndex = 7;
             this.redirect301.TabStop = true;
-            this.redirect301.Text = "301";
+            this.redirect301.Text = "301 [Moved]";
             this.redirect301.UseVisualStyleBackColor = true;
             this.redirect301.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 
@@ -139,11 +140,22 @@
             this.redirect302.AutoSize = true;
             this.redirect302.Location = new System.Drawing.Point(19, 160);
             this.redirect302.Name = "redirect302";
-            this.redirect302.Size = new System.Drawing.Size(43, 17);
+            this.redirect302.Size = new System.Drawing.Size(92, 17);
             this.redirect302.TabIndex = 8;
             this.redirect302.TabStop = true;
-            this.redirect302.Text = "302";
+            this.redirect302.Text = "302 [Redirect]";
             this.redirect302.UseVisualStyleBackColor = true;
+            // 
+            // statusOk
+            // 
+            this.statusOk.AutoSize = true;
+            this.statusOk.Location = new System.Drawing.Point(159, 137);
+            this.statusOk.Name = "statusOk";
+            this.statusOk.Size = new System.Drawing.Size(66, 17);
+            this.statusOk.TabIndex = 9;
+            this.statusOk.TabStop = true;
+            this.statusOk.Text = "200 [Ok]";
+            this.statusOk.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -152,6 +164,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button2;
             this.ClientSize = new System.Drawing.Size(446, 246);
+            this.Controls.Add(this.statusOk);
             this.Controls.Add(this.redirect302);
             this.Controls.Add(this.redirect301);
             this.Controls.Add(this.label2);
@@ -182,6 +195,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.RadioButton redirect301;
         private System.Windows.Forms.RadioButton redirect302;
+        private System.Windows.Forms.RadioButton statusOk;
     }
 }
 

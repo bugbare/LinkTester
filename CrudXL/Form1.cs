@@ -1,23 +1,20 @@
-﻿using System;
+﻿using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using OpenQA.Selenium;
-using OpenQA.Selenium.Firefox;
-
-using NUnit.Framework;
-using System.Net.Http;
-using System.Configuration;
-using System.Net.Http.Headers;
-using System.Net;
-using System.IO;
-
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace CrudXL
@@ -70,11 +67,11 @@ namespace CrudXL
             if (redirect302.Checked)
             {
                 redirectState = HttpStatusCode.Redirect;
-            }
-            else {
-
-                redirectState = HttpStatusCode.MovedPermanently;
-            }
+            } else if (statusOk.Checked) {
+                   redirectState = HttpStatusCode.OK;
+                } else {
+                       redirectState = HttpStatusCode.MovedPermanently;
+                    }
 
 /*            if (sPattern == "") {
                 sPattern = "http://www.cityindex.co.uk";
