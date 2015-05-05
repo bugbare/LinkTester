@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
+
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +17,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Tokenizer;
+
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace CrudXL
@@ -26,9 +31,11 @@ namespace CrudXL
             InitializeComponent();
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void createButton_Click(object sender, EventArgs e)
         {
+            /* Instantiate Excel App object to use to generate an excell workbook*/
             Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
+            String pageUrl;
 
             if (xlApp == null)
             {
@@ -37,34 +44,108 @@ namespace CrudXL
             }
 
 
+           if (this.inputPageUrl.Text == "") 
+                {
+                    pageUrl = "http://www.cityindex.co.uk";
+                }
+            else 
+                {
+                    pageUrl = this.inputPageUrl.Text;
+                }
+
+            /* Instantiate all excel app objects to contain all the excel workbook components*/
             Excel.Workbook xlWorkBook;
             Excel.Worksheet xlWorkSheet;
+            /* a Value type missing object is required when generating a Workbook using the Excel.Workbook.SaveAs serializing method
+             * to ignore certain options that are not required to be used - null is not allowed to be used instead */
             object misValue = System.Reflection.Missing.Value;
-
+            /* Instantiate a workbook and initialise the first worksheet, assigned to the xlWorksheet object*/
             xlWorkBook = xlApp.Workbooks.Add(misValue);
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
-            xlWorkSheet.Cells[1, 1] = "Sheet 1 content";
+            
+            /* Initialise a new webdriver driver object and go to the initial landing page*/
+            IWebDriver driver = new FirefoxDriver();
+            driver.Navigate().GoToUrl(pageUrl);
+            string pageTitle = driver.Title;
+            string resultFile = string.Format("Test Data-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
+                                DateTime.Now);
+            /* Create a local variable to hold contents of the page source*/
 
-            xlWorkBook.SaveAs("z:\\csharp-test-Excel.xls", Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+            var pageLinks = new List<string>();
+            var anchors = driver.FindElements(By.TagName("a"));
+            int rCnt = 1;
+            string lPattern = "http";
+            foreach (var element in anchors)
+            {
+                if (element.GetAttribute("href") != null)
+                {
+                    string pageLink = element.GetAttribute("href");
+         
+                    
+                    if (System.Text.RegularExpressions.Regex.IsMatch(pageLink, lPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    {
+                        if (System.Text.RegularExpressions.Regex.IsMatch(pageLink, "/#", System.Text.RegularExpressions.RegexOptions.IgnoreCase) == false)
+                        {
+                            pageLinks.Add(pageLink);
+                            xlWorkSheet.Cells[rCnt, 1] = pageLink;
+                            rCnt++;
+                        }
+                    }
+                }
+            }
+
+            rCnt = 1;
+            foreach (var link in pageLinks)
+            {
+                driver.Navigate().GoToUrl(link);
+                var destinationUrl = driver.Url;
+                xlWorkSheet.Cells[rCnt, 2] = destinationUrl;
+                driver.Navigate().Back();
+                rCnt++;
+            }
+
+
+
+            xlWorkBook.SaveAs("z:\\" + resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
             xlWorkBook.Close(true, misValue, misValue);
             xlApp.Quit();
+            driver.Quit();
 
             releaseObject(xlWorkSheet);
             releaseObject(xlWorkBook);
             releaseObject(xlApp);
 
-            MessageBox.Show("Excel file created , you can find the file z:\\csharp-Excel.xls");
+            MessageBox.Show("Excel file created , you can find the file at z:\\"+resultFile);
         }
 
         /* Read Excel Spreadsheet  */
-        private void button2_Click(object sender, EventArgs e)
+        private void readButton_Click(object sender, EventArgs e)
         {
 
-            string crNumber = this.changeRequest.Text;
-            string dcId = this.dataCentre.Text;
+            string crNumber;
+            string dcId;
+
+            if (this.changeRequest.Text == null) 
+                {
+                    crNumber = "";
+                }
+            else 
+                {
+                    crNumber = this.changeRequest.Text;
+                }
+             
+            if (this.dataCentre.Text == null) 
+            {
+                dcId = "";
+            }  
+            else 
+            {
+                dcId = this.dataCentre.Text;
+            }
+            
             HttpStatusCode redirectState;
 
-            if (redirect302.Checked)
+            if (status302.Checked)
             {
                 redirectState = HttpStatusCode.Redirect;
             } else if (statusOk.Checked) {
@@ -103,7 +184,7 @@ namespace CrudXL
                 string exp;
                 string act;
                 int rCnt = 0;
-                string resultFile = string.Format(crNumber+"-"+dcId+"-Redirects-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
+                string resultFile = string.Format(crNumber+"-"+dcId+"-Redirect-TestResults-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
 	                            DateTime.Now);
 
                 xlApp = new Excel.Application();
@@ -140,8 +221,9 @@ namespace CrudXL
                 xlWorkSheetNew.Cells[1, 1] = "SOURCE URL: ";
                 xlWorkSheetNew.Cells[1, 2] = "EXPECTED DESTINATION URL";
                 xlWorkSheetNew.Cells[1, 3] = "ACTUAL DESTINATION URL";
-                xlWorkSheetNew.Cells[1, 4] = "HTTP RESPONSE CODE";
-                xlWorkSheetNew.Cells[1, 5] = "RESULT";
+                xlWorkSheetNew.Cells[1, 4] = "EXPECTED HTTP RESPONSE CODE";
+                xlWorkSheetNew.Cells[1, 5] = "ACTUAL HTTP RESPONSE CODE";
+                xlWorkSheetNew.Cells[1, 6] = "RESULT";
            
                 for (rCnt = 1; rCnt <= range.Rows.Count; rCnt++)
                 {
@@ -169,8 +251,9 @@ namespace CrudXL
                             xlWorkSheetNew.Cells[rCnt, 1] = src;
                             xlWorkSheetNew.Cells[rCnt, 2] = exp;
                             xlWorkSheetNew.Cells[rCnt, 3] = act;
-                            xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
-                            xlWorkSheetNew.Cells[rCnt, 5] = "*****PASSED*****";
+                            xlWorkSheetNew.Cells[rCnt, 4] = redirectState.ToString();
+                            xlWorkSheetNew.Cells[rCnt, 5] = response.StatusCode.ToString();
+                            xlWorkSheetNew.Cells[rCnt, 6] = "*****PASSED*****";
 /*                            if (MessageBox.Show("SOURCE URL: "
                                 + src
                                 + "\nEXPECTED DESTINATION URL: "
@@ -205,7 +288,8 @@ namespace CrudXL
                                 releaseObject(xlApp);
 
                                 Application.Exit();
-                            } */
+                            } 
+ */
 
                         }
                         catch (AssertionException AE)
@@ -214,8 +298,9 @@ namespace CrudXL
                             xlWorkSheetNew.Cells[rCnt, 1] = src;
                             xlWorkSheetNew.Cells[rCnt, 2] = exp;
                             xlWorkSheetNew.Cells[rCnt, 3] = act;
-                            xlWorkSheetNew.Cells[rCnt, 4] = response.StatusCode.ToString();
-                            xlWorkSheetNew.Cells[rCnt, 5] = "*****FAILED*****";
+                            xlWorkSheetNew.Cells[rCnt, 4] = redirectState.ToString();
+                            xlWorkSheetNew.Cells[rCnt, 5] = response.StatusCode.ToString();
+                            xlWorkSheetNew.Cells[rCnt, 6] = "*****FAILED*****";
                             if (MessageBox.Show("********************ERROR********************"
                                 + "\nROW: "
                                 + rCnt
@@ -224,8 +309,10 @@ namespace CrudXL
                                 + "\nEXPECTED DESTINATION URL: "
                                 + exp
                                 + "\nACTUAL DESTINATION URL: "
-                                + act  
-                                + "\nHTTP RESPONSE CODE: "
+                                + act
+                                + "\nEXPECTED HTTP RESPONSE CODE: "
+                                + redirectState.ToString() 
+                                + "\nACTUAL HTTP RESPONSE CODE: "
                                 + response.StatusCode.ToString() 
                                 /*+ "\nLOCATION: "  
                                 + response.Headers.Location.ToString() 
@@ -328,6 +415,11 @@ namespace CrudXL
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
         {
 
         }
