@@ -30,8 +30,8 @@
         {
             this.createButton = new System.Windows.Forms.Button();
             this.readButton = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.exit = new System.Windows.Forms.Button();
+            this.readFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.changeRequest = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.dataCentre = new System.Windows.Forms.TextBox();
@@ -41,6 +41,7 @@
             this.statusOk = new System.Windows.Forms.RadioButton();
             this.inputPageUrl = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.testButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // createButton
@@ -68,21 +69,18 @@
             this.readButton.UseVisualStyleBackColor = true;
             this.readButton.Click += new System.EventHandler(this.readButton_Click);
             // 
-            // button3
+            // exit
             // 
-            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.ForeColor = System.Drawing.Color.DarkRed;
-            this.button3.Location = new System.Drawing.Point(349, 303);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "Exit";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
+            this.exit.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.exit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.exit.ForeColor = System.Drawing.Color.DarkRed;
+            this.exit.Location = new System.Drawing.Point(314, 303);
+            this.exit.Name = "exit";
+            this.exit.Size = new System.Drawing.Size(75, 23);
+            this.exit.TabIndex = 2;
+            this.exit.Text = "Exit";
+            this.exit.UseVisualStyleBackColor = true;
+            this.exit.Click += new System.EventHandler(this.exit_Click_1);
             // 
             // changeRequest
             // 
@@ -177,13 +175,28 @@
     "here";
             this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
+            // testButton
+            // 
+            this.testButton.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.testButton.FlatAppearance.BorderSize = 2;
+            this.testButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.testButton.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.testButton.Location = new System.Drawing.Point(314, 79);
+            this.testButton.Name = "testButton";
+            this.testButton.Size = new System.Drawing.Size(75, 23);
+            this.testButton.TabIndex = 12;
+            this.testButton.Text = "Test";
+            this.testButton.UseVisualStyleBackColor = false;
+            this.testButton.Click += new System.EventHandler(this.testButton_Click);
+            // 
             // Form1
             // 
             this.AcceptButton = this.createButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.readButton;
-            this.ClientSize = new System.Drawing.Size(446, 353);
+            this.CancelButton = this.exit;
+            this.ClientSize = new System.Drawing.Size(429, 353);
+            this.Controls.Add(this.testButton);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.inputPageUrl);
             this.Controls.Add(this.statusOk);
@@ -193,7 +206,7 @@
             this.Controls.Add(this.dataCentre);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.changeRequest);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.exit);
             this.Controls.Add(this.readButton);
             this.Controls.Add(this.createButton);
             this.Name = "Form1";
@@ -209,8 +222,8 @@
 
         private System.Windows.Forms.Button createButton;
         private System.Windows.Forms.Button readButton;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.Button exit;
+        private System.Windows.Forms.OpenFileDialog readFileDialog;
         private System.Windows.Forms.TextBox changeRequest;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox dataCentre;
@@ -220,6 +233,7 @@
         private System.Windows.Forms.RadioButton statusOk;
         private System.Windows.Forms.TextBox inputPageUrl;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button testButton;
     }
 }
 
