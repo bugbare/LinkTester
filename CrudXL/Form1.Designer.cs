@@ -1,6 +1,6 @@
 ﻿namespace CrudXL
 {
-    partial class Form1
+    partial class BugBareSmoke
     {
         /// <summary>
         /// Required designer variable.
@@ -28,191 +28,191 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.createButton = new System.Windows.Forms.Button();
-            this.readButton = new System.Windows.Forms.Button();
-            this.exit = new System.Windows.Forms.Button();
+            this.CreateButton = new System.Windows.Forms.Button();
+            this.ReadButton = new System.Windows.Forms.Button();
+            this.Exit = new System.Windows.Forms.Button();
             this.readFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.changeRequest = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.dataCentre = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.status301 = new System.Windows.Forms.RadioButton();
-            this.status302 = new System.Windows.Forms.RadioButton();
-            this.statusOk = new System.Windows.Forms.RadioButton();
-            this.inputPageUrl = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.testButton = new System.Windows.Forms.Button();
+            this.ChangeRequest = new System.Windows.Forms.TextBox();
+            this.TixRefLabel = new System.Windows.Forms.Label();
+            this.DataCentre = new System.Windows.Forms.TextBox();
+            this.DCRefLabel = new System.Windows.Forms.Label();
+            this.Status301 = new System.Windows.Forms.RadioButton();
+            this.Status302 = new System.Windows.Forms.RadioButton();
+            this.StatusOk = new System.Windows.Forms.RadioButton();
+            this.InputPageUrl = new System.Windows.Forms.TextBox();
+            this.TestGenHelpTextLabel = new System.Windows.Forms.Label();
+            this.TestButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // createButton
             // 
-            this.createButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.createButton.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.createButton.Location = new System.Drawing.Point(15, 79);
-            this.createButton.Name = "createButton";
-            this.createButton.Size = new System.Drawing.Size(75, 23);
-            this.createButton.TabIndex = 0;
-            this.createButton.Text = "Create";
-            this.createButton.UseVisualStyleBackColor = true;
-            this.createButton.Click += new System.EventHandler(this.createButton_Click);
+            this.CreateButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.CreateButton.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.CreateButton.Location = new System.Drawing.Point(15, 79);
+            this.CreateButton.Name = "createButton";
+            this.CreateButton.Size = new System.Drawing.Size(75, 23);
+            this.CreateButton.TabIndex = 0;
+            this.CreateButton.Text = "Create";
+            this.CreateButton.UseVisualStyleBackColor = true;
+            this.CreateButton.Click += new System.EventHandler(this.CreateButton_Click);
             // 
-            // readButton
+            // Read Button
             // 
-            this.readButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.readButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.readButton.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.readButton.Location = new System.Drawing.Point(12, 303);
-            this.readButton.Name = "readButton";
-            this.readButton.Size = new System.Drawing.Size(75, 23);
-            this.readButton.TabIndex = 1;
-            this.readButton.Text = "Read";
-            this.readButton.UseVisualStyleBackColor = true;
-            this.readButton.Click += new System.EventHandler(this.readButton_Click);
+            this.ReadButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.ReadButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ReadButton.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.ReadButton.Location = new System.Drawing.Point(12, 303);
+            this.ReadButton.Name = "readButton";
+            this.ReadButton.Size = new System.Drawing.Size(75, 23);
+            this.ReadButton.TabIndex = 1;
+            this.ReadButton.Text = "Read";
+            this.ReadButton.UseVisualStyleBackColor = true;
+            this.ReadButton.Click += new System.EventHandler(this.ReadButton_Click);
             // 
-            // exit
+            // Exit Button
             // 
-            this.exit.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.exit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.exit.ForeColor = System.Drawing.Color.DarkRed;
-            this.exit.Location = new System.Drawing.Point(314, 303);
-            this.exit.Name = "exit";
-            this.exit.Size = new System.Drawing.Size(75, 23);
-            this.exit.TabIndex = 2;
-            this.exit.Text = "Exit";
-            this.exit.UseVisualStyleBackColor = true;
-            this.exit.Click += new System.EventHandler(this.exit_Click_1);
+            this.Exit.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.Exit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Exit.ForeColor = System.Drawing.Color.DarkRed;
+            this.Exit.Location = new System.Drawing.Point(314, 303);
+            this.Exit.Name = "exit";
+            this.Exit.Size = new System.Drawing.Size(75, 23);
+            this.Exit.TabIndex = 2;
+            this.Exit.Text = "Exit";
+            this.Exit.UseVisualStyleBackColor = true;
+            this.Exit.Click += new System.EventHandler(this.Exit_BugBareSmoke);
             // 
-            // changeRequest
+            // CR Input Text Field
             // 
-            this.changeRequest.AcceptsTab = true;
-            this.changeRequest.AccessibleDescription = "CR Number Input Field";
-            this.changeRequest.AccessibleName = "CRInput";
-            this.changeRequest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.changeRequest.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.changeRequest.Location = new System.Drawing.Point(12, 134);
-            this.changeRequest.Name = "changeRequest";
-            this.changeRequest.Size = new System.Drawing.Size(228, 20);
-            this.changeRequest.TabIndex = 3;
-            this.changeRequest.UseWaitCursor = true;
+            this.ChangeRequest.AcceptsTab = true;
+            this.ChangeRequest.AccessibleDescription = "CR Number Input Field";
+            this.ChangeRequest.AccessibleName = "CRInput";
+            this.ChangeRequest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ChangeRequest.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.ChangeRequest.Location = new System.Drawing.Point(12, 134);
+            this.ChangeRequest.Name = "changeRequest";
+            this.ChangeRequest.Size = new System.Drawing.Size(228, 20);
+            this.ChangeRequest.TabIndex = 3;
+            this.ChangeRequest.UseWaitCursor = true;
             // 
-            // label1
+            // Ticket Reference Label
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 157);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(346, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Please enter the CR/Ticket # above, this will be prefixed to the filename";
+            this.TixRefLabel.AutoSize = true;
+            this.TixRefLabel.Location = new System.Drawing.Point(9, 157);
+            this.TixRefLabel.Name = "label1";
+            this.TixRefLabel.Size = new System.Drawing.Size(346, 13);
+            this.TixRefLabel.TabIndex = 4;
+            this.TixRefLabel.Text = "Please enter the CR/Ticket # above, this will be prefixed to the filename";
             // 
-            // dataCentre
+            // Data Centre Input Text Field
             // 
-            this.dataCentre.AcceptsTab = true;
-            this.dataCentre.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.dataCentre.Location = new System.Drawing.Point(12, 188);
-            this.dataCentre.Name = "dataCentre";
-            this.dataCentre.Size = new System.Drawing.Size(100, 20);
-            this.dataCentre.TabIndex = 5;
+            this.DataCentre.AcceptsTab = true;
+            this.DataCentre.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.DataCentre.Location = new System.Drawing.Point(12, 188);
+            this.DataCentre.Name = "dataCentre";
+            this.DataCentre.Size = new System.Drawing.Size(100, 20);
+            this.DataCentre.TabIndex = 5;
             // 
-            // label2
+            // DataCentre Reference Label
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 215);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(243, 13);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Please enter the 3 character datacentre reference";
+            this.DCRefLabel.AutoSize = true;
+            this.DCRefLabel.Location = new System.Drawing.Point(12, 215);
+            this.DCRefLabel.Name = "label2";
+            this.DCRefLabel.Size = new System.Drawing.Size(243, 13);
+            this.DCRefLabel.TabIndex = 6;
+            this.DCRefLabel.Text = "Please enter the 3 character datacentre reference";
             // 
             // status301
             // 
-            this.status301.AutoSize = true;
-            this.status301.Checked = true;
-            this.status301.Location = new System.Drawing.Point(15, 246);
-            this.status301.Name = "status301";
-            this.status301.Size = new System.Drawing.Size(85, 17);
-            this.status301.TabIndex = 7;
-            this.status301.TabStop = true;
-            this.status301.Text = "301 [Moved]";
-            this.status301.UseVisualStyleBackColor = true;
-            this.status301.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            this.Status301.AutoSize = true;
+            this.Status301.Checked = true;
+            this.Status301.Location = new System.Drawing.Point(15, 246);
+            this.Status301.Name = "status301";
+            this.Status301.Size = new System.Drawing.Size(85, 17);
+            this.Status301.TabIndex = 7;
+            this.Status301.TabStop = true;
+            this.Status301.Text = "301 [Moved]";
+            this.Status301.UseVisualStyleBackColor = true;
+            this.Status301.CheckedChanged += new System.EventHandler(this.RedirectMode_CheckBox_Click);
             // 
             // status302
             // 
-            this.status302.AutoSize = true;
-            this.status302.Location = new System.Drawing.Point(15, 269);
-            this.status302.Name = "status302";
-            this.status302.Size = new System.Drawing.Size(92, 17);
-            this.status302.TabIndex = 8;
-            this.status302.TabStop = true;
-            this.status302.Text = "302 [Redirect]";
-            this.status302.UseVisualStyleBackColor = true;
+            this.Status302.AutoSize = true;
+            this.Status302.Location = new System.Drawing.Point(15, 269);
+            this.Status302.Name = "status302";
+            this.Status302.Size = new System.Drawing.Size(92, 17);
+            this.Status302.TabIndex = 8;
+            this.Status302.TabStop = true;
+            this.Status302.Text = "302 [Redirect]";
+            this.Status302.UseVisualStyleBackColor = true;
             // 
             // statusOk
             // 
-            this.statusOk.AutoSize = true;
-            this.statusOk.Location = new System.Drawing.Point(155, 246);
-            this.statusOk.Name = "statusOk";
-            this.statusOk.Size = new System.Drawing.Size(66, 17);
-            this.statusOk.TabIndex = 9;
-            this.statusOk.TabStop = true;
-            this.statusOk.Text = "200 [Ok]";
-            this.statusOk.UseVisualStyleBackColor = true;
+            this.StatusOk.AutoSize = true;
+            this.StatusOk.Location = new System.Drawing.Point(155, 246);
+            this.StatusOk.Name = "statusOk";
+            this.StatusOk.Size = new System.Drawing.Size(66, 17);
+            this.StatusOk.TabIndex = 9;
+            this.StatusOk.TabStop = true;
+            this.StatusOk.Text = "200 [Ok]";
+            this.StatusOk.UseVisualStyleBackColor = true;
             // 
             // inputPageUrl
             // 
-            this.inputPageUrl.Location = new System.Drawing.Point(15, 25);
-            this.inputPageUrl.Name = "inputPageUrl";
-            this.inputPageUrl.Size = new System.Drawing.Size(374, 20);
-            this.inputPageUrl.TabIndex = 10;
+            this.InputPageUrl.Location = new System.Drawing.Point(15, 25);
+            this.InputPageUrl.Name = "inputPageUrl";
+            this.InputPageUrl.Size = new System.Drawing.Size(374, 20);
+            this.InputPageUrl.TabIndex = 10;
             // 
-            // label3
+            // Test Generation Help Text
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 52);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(412, 13);
-            this.label3.TabIndex = 11;
-            this.label3.Text = "To create a spreadsheet that contains all links on any given page, enter the URL " +
+            this.TestGenHelpTextLabel.AutoSize = true;
+            this.TestGenHelpTextLabel.Location = new System.Drawing.Point(12, 52);
+            this.TestGenHelpTextLabel.Name = "label3";
+            this.TestGenHelpTextLabel.Size = new System.Drawing.Size(412, 13);
+            this.TestGenHelpTextLabel.TabIndex = 11;
+            this.TestGenHelpTextLabel.Text = "To create a spreadsheet that contains all links on any given page, enter the URL " +
     "here";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
+            this.TestGenHelpTextLabel.Click += new System.EventHandler(this.TestBuilder_Description_Click);
             // 
-            // testButton
+            // TestButton Designer References
             // 
-            this.testButton.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.testButton.FlatAppearance.BorderSize = 2;
-            this.testButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.testButton.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.testButton.Location = new System.Drawing.Point(314, 79);
-            this.testButton.Name = "testButton";
-            this.testButton.Size = new System.Drawing.Size(75, 23);
-            this.testButton.TabIndex = 12;
-            this.testButton.Text = "Test";
-            this.testButton.UseVisualStyleBackColor = false;
-            this.testButton.Click += new System.EventHandler(this.testButton_Click);
+            this.TestButton.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.TestButton.FlatAppearance.BorderSize = 2;
+            this.TestButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.TestButton.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.TestButton.Location = new System.Drawing.Point(314, 79);
+            this.TestButton.Name = "testButton";
+            this.TestButton.Size = new System.Drawing.Size(75, 23);
+            this.TestButton.TabIndex = 12;
+            this.TestButton.Text = "Test";
+            this.TestButton.UseVisualStyleBackColor = false;
+            this.TestButton.Click += new System.EventHandler(this.TestButton_Click);
             // 
             // Form1
             // 
-            this.AcceptButton = this.createButton;
+            this.AcceptButton = this.CreateButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.exit;
+            this.CancelButton = this.Exit;
             this.ClientSize = new System.Drawing.Size(429, 353);
-            this.Controls.Add(this.testButton);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.inputPageUrl);
-            this.Controls.Add(this.statusOk);
-            this.Controls.Add(this.status302);
-            this.Controls.Add(this.status301);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.dataCentre);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.changeRequest);
-            this.Controls.Add(this.exit);
-            this.Controls.Add(this.readButton);
-            this.Controls.Add(this.createButton);
+            this.Controls.Add(this.TestButton);
+            this.Controls.Add(this.TestGenHelpTextLabel);
+            this.Controls.Add(this.InputPageUrl);
+            this.Controls.Add(this.StatusOk);
+            this.Controls.Add(this.Status302);
+            this.Controls.Add(this.Status301);
+            this.Controls.Add(this.DCRefLabel);
+            this.Controls.Add(this.DataCentre);
+            this.Controls.Add(this.TixRefLabel);
+            this.Controls.Add(this.ChangeRequest);
+            this.Controls.Add(this.Exit);
+            this.Controls.Add(this.ReadButton);
+            this.Controls.Add(this.CreateButton);
             this.Name = "Form1";
             this.RightToLeftLayout = true;
             this.Text = "Find the source excel data file";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.BugBareSmoke_LoadFile);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -220,20 +220,20 @@
 
         #endregion
 
-        private System.Windows.Forms.Button createButton;
-        private System.Windows.Forms.Button readButton;
-        private System.Windows.Forms.Button exit;
+        private System.Windows.Forms.Button CreateButton;
+        private System.Windows.Forms.Button ReadButton;
+        private System.Windows.Forms.Button Exit;
         private System.Windows.Forms.OpenFileDialog readFileDialog;
-        private System.Windows.Forms.TextBox changeRequest;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox dataCentre;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.RadioButton status301;
-        private System.Windows.Forms.RadioButton status302;
-        private System.Windows.Forms.RadioButton statusOk;
-        private System.Windows.Forms.TextBox inputPageUrl;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button testButton;
+        private System.Windows.Forms.TextBox ChangeRequest;
+        private System.Windows.Forms.Label TixRefLabel;
+        private System.Windows.Forms.TextBox DataCentre;
+        private System.Windows.Forms.Label DCRefLabel;
+        private System.Windows.Forms.RadioButton Status301;
+        private System.Windows.Forms.RadioButton Status302;
+        private System.Windows.Forms.RadioButton StatusOk;
+        private System.Windows.Forms.TextBox InputPageUrl;
+        private System.Windows.Forms.Label TestGenHelpTextLabel;
+        private System.Windows.Forms.Button TestButton;
     }
 }
 

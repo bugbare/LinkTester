@@ -2,6 +2,8 @@
 
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Chrome;
+
 
 using System;
 using System.Collections.Generic;
@@ -24,15 +26,22 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace CrudXL
 {
-    public partial class Form1 : Form
+    public partial class BugBareSmoke : Form
     {
+
+        private FirefoxDriver driver;
+        //private ChromeDriver cDriver;
+       
+
         /* Initialise the implemented Form, Form1 interface object */
-        public Form1()
+        public BugBareSmoke()
         {
             InitializeComponent();
+            driver = new FirefoxDriver();
+            driver.Manage().Timeouts().ImplicitlyWait(new TimeSpan(0, 0, 10));
         }
 
-        private void createButton_Click(object sender, EventArgs e)
+        private void CreateButton_Click(object sender, EventArgs e)
         {
             /* Instantiate Excel App object to use to generate an excel workbook*/
             Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
@@ -54,13 +63,13 @@ namespace CrudXL
 
             /* If there is no user input for the URL test field then default to City Index UK site */
 
-            if (this.inputPageUrl.Text == "") 
+            if (this.InputPageUrl.Text == "") 
                 {
                     pageUrl = "http://www.cityindex.co.uk";
                 }
             else 
                 {
-                    pageUrl = this.inputPageUrl.Text;
+                    pageUrl = this.InputPageUrl.Text;
                 }
 
             /* Instantiate all excel app objects to contain all the excel workbook components*/
@@ -78,8 +87,8 @@ namespace CrudXL
             xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             xlWorkSheet.Name = string.Format("TestData-{0:yyyy-MM-dd}", DateTime.Today);
             
-            /* Initialise a new webdriver driver object and go to the initial landing page*/
-            IWebDriver driver = new FirefoxDriver();
+            /* Initialise a new Firefox driver object and go to the initial landing page*/
+            
 
             /* Setup a headless http client handler that does not allow autoredirects, 
              * so we get the initial response status code returned by the server*/
@@ -206,6 +215,8 @@ namespace CrudXL
                     xlWorkBook.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                     xlWorkBook.Close(true, misValue, misValue);
                     xlApp.Quit();
+                    driver.Manage().Cookies.DeleteAllCookies();
+                    driver.Close();
                     driver.Quit();
 
                     releaseObject(xlWorkSheet);
@@ -223,6 +234,8 @@ namespace CrudXL
             xlWorkBook.SaveAs("z:\\" + resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
             xlWorkBook.Close(true, misValue, misValue);
             xlApp.Quit();
+            driver.Manage().Cookies.DeleteAllCookies();
+            driver.Close();
             driver.Quit();
 
             releaseObject(xlWorkSheet);
@@ -232,37 +245,314 @@ namespace CrudXL
             MessageBox.Show("Excel file created , you can find the file at z:\\"+resultFile);
         }
 
+        private void TestButton_Click(object sender, EventArgs e)
+        {
+
+            DialogResult result = readFileDialog.ShowDialog(); // Show the dialog.
+            if (result == DialogResult.OK) // Test result.
+            {
+                string file = readFileDialog.FileName;
+
+                Excel.Application xlApp;
+                Excel.Workbook xlWorkBook;
+                Excel.Worksheet xlWorkSheet;
+                Excel.Range range;
+
+
+                HttpClientHandler httpClientHandler = new HttpClientHandler();
+                httpClientHandler.AllowAutoRedirect = true;
+
+                HttpResponseMessage response;
+
+                string sourceUrl;
+                string expectedUrl;
+                string actualUrl;
+                string expectedTitle;
+                string actualTitle;
+                int expectedStatusCode;
+                int actualStatusCode;
+                int rCnt = 0;
+                string resultFile = string.Format("Smoke-TestResults-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
+                                DateTime.Now);
+
+                xlApp = new Excel.Application();
+                xlWorkBook = xlApp.Workbooks.Open(file, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
+                xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
+                //driver = new FirefoxDriver();
+
+
+                range = xlWorkSheet.UsedRange;
+                int tRows = range.Rows.Count - 1;
+                int tCols = range.Columns.Count;
+
+                if (MessageBox.Show("TOTAL NUMBER OF ROWS TO TEST: " + tRows + "\n"
+                    + "ROWS: "
+                    + tRows
+                    + "\nCOLUMNS: "
+                    + tCols
+                    , "TOTAL NUMBER OF TESTS",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Asterisk,
+                    MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
+                {
+                    releaseObject(xlWorkSheet);
+                    releaseObject(xlWorkBook);
+                    releaseObject(xlApp);
+
+                    driver.Manage().Cookies.DeleteAllCookies();
+                    driver.Close();
+                    driver.Quit();
+
+                    Application.Exit();
+
+                }
+
+                Excel.Worksheet xlWorkSheetResult;
+                xlWorkSheetResult = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(2);
+                object misValue = System.Reflection.Missing.Value;
+                xlWorkSheetResult.Name = string.Format("TestResults-{0:yyyy-MM-dd}", DateTime.Today);
+                xlWorkSheetResult.Cells[1, 1] = "SOURCE URL ";
+                xlWorkSheetResult.Cells[1, 2] = "EXPECTED DESTINATION URL";
+                xlWorkSheetResult.Cells[1, 3] = "ACTUAL DESTINATION URL";
+                xlWorkSheetResult.Cells[1, 4] = "EXPECTED HTTP RESPONSE CODE";
+                xlWorkSheetResult.Cells[1, 5] = "ACTUAL HTTP RESPONSE CODE";
+                xlWorkSheetResult.Cells[1, 6] = "EXPECTED PAGE TITLE";
+                xlWorkSheetResult.Cells[1, 7] = "ACTUAL PAGE TITLE";
+                xlWorkSheetResult.Cells[1, 8] = "RESULT";
+
+                for (rCnt = 1; rCnt <= range.Rows.Count; rCnt++)
+                {
+
+                    sourceUrl = (string)(range.Cells[rCnt, 1] as Excel.Range).Value2;
+                    string sPattern = "(http\\s?)";
+
+
+
+                    if (System.Text.RegularExpressions.Regex.IsMatch(sourceUrl, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    {
+
+
+                        HttpClient client = new HttpClient(httpClientHandler);
+                        try
+                        {
+                            response = client.GetAsync(sourceUrl).Result;
+                            actualStatusCode = (int)response.StatusCode;
+                            driver.Navigate().GoToUrl(sourceUrl);
+                            expectedUrl = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
+                            actualUrl = driver.Url.ToString();
+                            expectedStatusCode = (int)(range.Cells[rCnt, 3] as Excel.Range).Value2;
+                            expectedTitle = (string)(range.Cells[rCnt, 4] as Excel.Range).Value2;
+                            actualTitle = driver.Title;
+
+                            try
+                            {
+                                StringAssert.AreEqualIgnoringCase(expectedUrl, actualUrl);
+                                Assert.AreEqual(expectedStatusCode, actualStatusCode);
+                                StringAssert.AreEqualIgnoringCase(expectedTitle, actualTitle);
+                                xlWorkSheetResult = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(2);
+                                xlWorkSheetResult.Cells[rCnt, 1] = sourceUrl;
+                                xlWorkSheetResult.Cells[rCnt, 2] = expectedUrl;
+                                xlWorkSheetResult.Cells[rCnt, 3] = actualUrl;
+                                xlWorkSheetResult.Cells[rCnt, 4] = expectedStatusCode.ToString();
+                                xlWorkSheetResult.Cells[rCnt, 5] = actualStatusCode.ToString();
+                                xlWorkSheetResult.Cells[rCnt, 6] = expectedTitle;
+                                xlWorkSheetResult.Cells[rCnt, 7] = actualTitle;
+                                xlWorkSheetResult.Cells[rCnt, 8] = "PASSED";
+                            }
+                            catch (AssertionException AE)
+                            {
+                                xlWorkSheetResult = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(2);
+                                xlWorkSheetResult.Cells[rCnt, 1] = sourceUrl;
+                                xlWorkSheetResult.Cells[rCnt, 2] = expectedUrl;
+                                xlWorkSheetResult.Cells[rCnt, 3] = actualUrl;
+                                xlWorkSheetResult.Cells[rCnt, 4] = expectedStatusCode.ToString();
+                                xlWorkSheetResult.Cells[rCnt, 5] = actualStatusCode.ToString();
+                                xlWorkSheetResult.Cells[rCnt, 6] = expectedTitle;
+                                xlWorkSheetResult.Cells[rCnt, 7] = actualTitle;
+                                
+                                if (MessageBox.Show("********************IS THIS A FAILURE ???********************"
+                                          + "\nROW: "
+                                          + rCnt
+                                          + "\nSOURCE URL: "
+                                          + sourceUrl
+                                          + "\nEXPECTED DESTINATION URL: "
+                                          + expectedUrl
+                                          + "\nACTUAL DESTINATION URL: "
+                                          + actualUrl
+                                          + "\nEXPECTED HTTP RESPONSE CODE: "
+                                          + expectedStatusCode.ToString()
+                                          + "\nACTUAL HTTP RESPONSE CODE: "
+                                          + actualStatusCode.ToString()
+                                          + "\nEXPECTED DESTINATION PAGE TITLE: "
+                                          + expectedTitle
+                                          + "\nACTUAL DESTINATION PAGE TITLE: "
+                                          + actualTitle
+                                          + "\n============================================="
+                                          + "\nNUNIT Says: "
+                                          + "\n"
+                                          + AE.ToString(),
+                                          "*****FAILED*****",
+                                          MessageBoxButtons.YesNoCancel,
+                                          MessageBoxIcon.Error,
+                                          MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                                {
+                                    xlWorkSheetResult.Cells[rCnt, 8] = "*****FAILED*****";
+                                }
+                                else if (MessageBox.Show("********************IS THIS A FAILURE ???********************"
+                                        + "\nROW: "
+                                        + rCnt
+                                        + "\nSOURCE URL: "
+                                        + sourceUrl
+                                        + "\nEXPECTED DESTINATION URL: "
+                                        + expectedUrl
+                                        + "\nACTUAL DESTINATION URL: "
+                                        + actualUrl
+                                        + "\nEXPECTED HTTP RESPONSE CODE: "
+                                        + expectedStatusCode.ToString()
+                                        + "\nACTUAL HTTP RESPONSE CODE: "
+                                        + actualStatusCode.ToString()
+                                        + "\nEXPECTED DESTINATION PAGE TITLE: "
+                                        + expectedTitle
+                                        + "\nACTUAL DESTINATION PAGE TITLE: "
+                                        + actualTitle
+                                        + "\n============================================="
+                                        + "\nNUNIT Says: "
+                                        + "\n"
+                                        + AE.ToString(),
+                                        "*****FAILED*****",
+                                        MessageBoxButtons.YesNoCancel,
+                                        MessageBoxIcon.Error,
+                                        MessageBoxDefaultButton.Button1) == DialogResult.No)
+                                {
+                                    
+                                    xlWorkSheetResult.Cells[rCnt, 8] = "*****PASSED (User Override)*****";
+                                                                       
+                                }
+                                else if (MessageBox.Show("********************IS THIS A FAILURE ???********************"
+                                    + "\nROW: "
+                                    + rCnt
+                                    + "\nSOURCE URL: "
+                                    + sourceUrl
+                                    + "\nEXPECTED DESTINATION URL: "
+                                    + expectedUrl
+                                    + "\nACTUAL DESTINATION URL: "
+                                    + actualUrl
+                                    + "\nEXPECTED HTTP RESPONSE CODE: "
+                                    + expectedStatusCode.ToString()
+                                    + "\nACTUAL HTTP RESPONSE CODE: "
+                                    + actualStatusCode.ToString()
+                                    + "\nEXPECTED DESTINATION PAGE TITLE: "
+                                    + expectedTitle
+                                    + "\nACTUAL DESTINATION PAGE TITLE: "
+                                    + actualTitle
+                                    + "\n============================================="
+                                    + "\nNUNIT Says: "
+                                    + "\n"
+                                    + AE.ToString(),
+                                    "*****FAILED*****",
+                                    MessageBoxButtons.YesNoCancel,
+                                    MessageBoxIcon.Error,
+                                    MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
+                                {
+                                    xlWorkSheetResult.Cells[rCnt, 8] = "*****FAILED*****";
+                                    xlWorkBook.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                                    xlWorkBook.Close(true, misValue, misValue);
+                                    xlApp.Quit();
+
+                                    driver.Manage().Cookies.DeleteAllCookies();
+                                    driver.Close();
+                                    driver.Quit();
+
+                                    releaseObject(xlWorkSheet);
+                                    releaseObject(xlWorkSheetResult);
+                                    releaseObject(xlWorkBook);
+                                    releaseObject(xlApp);
+
+                                    Application.Exit();
+                                }
+
+                            }
+
+                        }
+
+                        catch (Exception Timeout)
+                        {
+                            xlWorkSheetResult.Cells[rCnt, 1] = sourceUrl;
+                            xlWorkSheetResult.Cells[rCnt, 2] = (range.Cells[rCnt, 2] as Excel.Range).Value2;
+                            xlWorkSheetResult.Cells[rCnt, 3] = driver.Url;
+                            xlWorkSheetResult.Cells[rCnt, 4] = (range.Cells[rCnt, 3] as Excel.Range).Value2;
+                            xlWorkSheetResult.Cells[rCnt, 5] = client.GetAsync(sourceUrl).Result.StatusCode;
+                            xlWorkSheetResult.Cells[rCnt, 6] = (range.Cells[rCnt, 4] as Excel.Range).Value2;
+                            xlWorkSheetResult.Cells[rCnt, 7] = driver.Title;
+                            xlWorkSheetResult.Cells[rCnt, 8] = "*****TIMEOUT*****";
+                            driver.Navigate().Back();
+                            rCnt++;
+                            MessageBox.Show(
+                            Timeout.ToString()
+                            + "\nFound before ROW: "
+                            + rCnt.ToString(),
+                            "********************TIMEOUT********************",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                        }
+                    }
+                }
+
+
+                MessageBox.Show("TESTS COMPLETED");
+                xlWorkBook.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                xlWorkBook.Close(true, misValue, misValue);
+
+                MessageBox.Show("Excel file created , you can find the file at z:\\" + resultFile);
+
+
+                xlApp.Quit();
+
+                driver.Manage().Cookies.DeleteAllCookies();
+                driver.Close();
+                driver.Quit();
+
+                releaseObject(xlWorkSheet);
+                releaseObject(xlWorkSheetResult);
+                releaseObject(xlWorkBook);
+                releaseObject(xlApp);
+
+
+                Application.Exit();
+            }
+        }
+
         /* Read Excel Spreadsheet  */
-        private void readButton_Click(object sender, EventArgs e)
+        private void ReadButton_Click(object sender, EventArgs e)
         {
 
             string crNumber;
             string dcId;
 
-            if (this.changeRequest.Text == null) 
+            if (this.ChangeRequest.Text == null) 
                 {
                     crNumber = "";
                 }
             else 
                 {
-                    crNumber = this.changeRequest.Text;
+                    crNumber = this.ChangeRequest.Text;
                 }
              
-            if (this.dataCentre.Text == null) 
+            if (this.DataCentre.Text == null) 
             {
                 dcId = "";
             }  
             else 
             {
-                dcId = this.dataCentre.Text;
+                dcId = this.DataCentre.Text;
             }
             
             HttpStatusCode redirectState;
 
-            if (status302.Checked)
+            if (Status302.Checked)
             {
                 redirectState = HttpStatusCode.Redirect;
-            } else if (statusOk.Checked) {
+            } else if (StatusOk.Checked) {
                    redirectState = HttpStatusCode.OK;
                 } else {
                        redirectState = HttpStatusCode.MovedPermanently;
@@ -295,7 +585,7 @@ namespace CrudXL
                 xlApp = new Excel.Application();
                 xlWorkBook = xlApp.Workbooks.Open(file, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
                 xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
-                IWebDriver driver = new FirefoxDriver();
+               // driver = new FirefoxDriver();
 
                 range = xlWorkSheet.UsedRange;
                 int tRows = range.Rows.Count;
@@ -314,7 +604,11 @@ namespace CrudXL
                     releaseObject(xlWorkSheet);
                     releaseObject(xlWorkBook);
                     releaseObject(xlApp);
+
                     Application.Exit();
+
+                    driver.Manage().Cookies.DeleteAllCookies();
+                    driver.Close();
                     driver.Quit();
                 }
 
@@ -344,31 +638,87 @@ namespace CrudXL
 
                         HttpClient client = new HttpClient(httpClientHandler);
                         response = client.GetAsync(src).Result;
-                        driver.Navigate().GoToUrl(src);
-                        driver.Manage().Window.Maximize();
-                        exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
-                        act = driver.Url.ToString();
+
                         try
                         {
-                            Assert.AreEqual(redirectState, response.StatusCode);
-                            StringAssert.AreEqualIgnoringCase(exp,act);
-                            xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
-                            xlWorkSheetNew.Cells[rCnt, 1] = src;
-                            xlWorkSheetNew.Cells[rCnt, 2] = exp;
-                            xlWorkSheetNew.Cells[rCnt, 3] = act;
-                            xlWorkSheetNew.Cells[rCnt, 4] = redirectState.ToString();
-                            xlWorkSheetNew.Cells[rCnt, 5] = response.StatusCode.ToString();
-                            xlWorkSheetNew.Cells[rCnt, 6] = "PASSED";
+                            driver.Navigate().GoToUrl(src);
+                            driver.Manage().Window.Maximize();
+                            exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
+                            act = driver.Url.ToString();
+                            try
+                            {
+                                Assert.AreEqual(redirectState, response.StatusCode);
+                                StringAssert.AreEqualIgnoringCase(exp, act);
+                                xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
+                                xlWorkSheetNew.Cells[rCnt, 1] = src;
+                                xlWorkSheetNew.Cells[rCnt, 2] = exp;
+                                xlWorkSheetNew.Cells[rCnt, 3] = act;
+                                xlWorkSheetNew.Cells[rCnt, 4] = redirectState.ToString();
+                                xlWorkSheetNew.Cells[rCnt, 5] = response.StatusCode.ToString();
+                                xlWorkSheetNew.Cells[rCnt, 6] = "PASSED";
+                            }
+                            catch (AssertionException AE)
+                            {
+                                xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
+                                xlWorkSheetNew.Cells[rCnt, 1] = src;
+                                xlWorkSheetNew.Cells[rCnt, 2] = exp;
+                                xlWorkSheetNew.Cells[rCnt, 3] = act;
+                                xlWorkSheetNew.Cells[rCnt, 4] = redirectState.ToString();
+                                xlWorkSheetNew.Cells[rCnt, 5] = response.StatusCode.ToString();
+                                xlWorkSheetNew.Cells[rCnt, 6] = "*****FAILED*****";
+                                if (MessageBox.Show("********************ERROR********************"
+                                    + "\nROW: "
+                                    + rCnt
+                                    + "\nSOURCE URL: "
+                                    + src
+                                    + "\nEXPECTED DESTINATION URL: "
+                                    + exp
+                                    + "\nACTUAL DESTINATION URL: "
+                                    + act
+                                    + "\nEXPECTED HTTP RESPONSE CODE: "
+                                    + redirectState.ToString()
+                                    + "\nACTUAL HTTP RESPONSE CODE: "
+                                    + response.StatusCode.ToString()
+                                    + "\n============================================="
+                                    + "\nNUNIT Says: "
+                                    + "\n"
+                                    + AE.ToString(),
+                                    "*****FAILED*****",
+                                    MessageBoxButtons.OKCancel,
+                                    MessageBoxIcon.Error,
+                                    MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
+                                {
+                                    xlWorkBook.Close(true, null, null);
+                                    xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                                    xlWorkBookNew.Close(true, misValue, misValue);
+                                    xlApp.Quit();
+
+                                    driver.Manage().Cookies.DeleteAllCookies();
+                                    driver.Close();
+                                    driver.Quit();
+
+                                    releaseObject(xlWorkSheet);
+                                    releaseObject(xlWorkBook);
+                                    releaseObject(xlWorkSheetNew);
+                                    releaseObject(xlWorkBookNew);
+                                    releaseObject(xlApp);
+
+                                    Application.Exit();
+                                }
+                            }
                         }
-                        catch (AssertionException AE)
+                        catch (WebDriverException timeout)
                         {
+                            exp = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
+                            act = driver.Url.ToString();
+
                             xlWorkSheetNew = (Excel.Worksheet)xlWorkBookNew.Worksheets.get_Item(1);
                             xlWorkSheetNew.Cells[rCnt, 1] = src;
                             xlWorkSheetNew.Cells[rCnt, 2] = exp;
                             xlWorkSheetNew.Cells[rCnt, 3] = act;
                             xlWorkSheetNew.Cells[rCnt, 4] = redirectState.ToString();
                             xlWorkSheetNew.Cells[rCnt, 5] = response.StatusCode.ToString();
-                            xlWorkSheetNew.Cells[rCnt, 6] = "*****FAILED*****";
+                            xlWorkSheetNew.Cells[rCnt, 6] = "*****TIMEOUT*****";
                             if (MessageBox.Show("********************ERROR********************"
                                 + "\nROW: "
                                 + rCnt
@@ -379,13 +729,13 @@ namespace CrudXL
                                 + "\nACTUAL DESTINATION URL: "
                                 + act
                                 + "\nEXPECTED HTTP RESPONSE CODE: "
-                                + redirectState.ToString() 
+                                + redirectState.ToString()
                                 + "\nACTUAL HTTP RESPONSE CODE: "
-                                + response.StatusCode.ToString() 
+                                + response.StatusCode.ToString()
                                 + "\n============================================="
                                 + "\nNUNIT Says: "
                                 + "\n"
-                                + AE.ToString(),
+                                + timeout.ToString(),
                                 "*****FAILED*****",
                                 MessageBoxButtons.OKCancel,
                                 MessageBoxIcon.Error,
@@ -395,6 +745,9 @@ namespace CrudXL
                                 xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                                 xlWorkBookNew.Close(true, misValue, misValue);
                                 xlApp.Quit();
+
+                                driver.Manage().Cookies.DeleteAllCookies();
+                                driver.Close();
                                 driver.Quit();
 
                                 releaseObject(xlWorkSheet);
@@ -405,23 +758,6 @@ namespace CrudXL
 
                                 Application.Exit();
                             }
-
-/*                            if (MessageBox.Show("Do you want to quit?", "DEBUG", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                            {
-                                xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
-                                xlWorkBookNew.Close(true, misValue, misValue);
-                                xlWorkBook.Close(true, null, null);
-                                xlApp.Quit();
-                                driver.Quit();
-
-                                releaseObject(xlWorkSheet);
-                                releaseObject(xlWorkBook);
-                                releaseObject(xlWorkSheetNew);
-                                releaseObject(xlWorkBookNew);
-                                releaseObject(xlApp);
-
-                                Application.Exit(); 
-                            } */
                         }
                     }                    
                 }
@@ -434,6 +770,9 @@ namespace CrudXL
 
 
                 xlApp.Quit();
+
+                driver.Manage().Cookies.DeleteAllCookies();
+                driver.Close();
                 driver.Quit();
 
                 releaseObject(xlWorkSheetNew);
@@ -466,246 +805,29 @@ namespace CrudXL
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void BugBareSmoke_LoadFile(object sender, EventArgs e)
         {
 
         }
 
-        private void exit_Click_1(object sender, EventArgs e)
+        private void RedirectMode_CheckBox_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void TestBuilder_Description_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("If you want to run a sample test - try entering 'http://www.cityindex.com'", "***** HINT *****", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Information,
+                MessageBoxDefaultButton.Button1, 
+                MessageBoxOptions.DefaultDesktopOnly);
+        }
+
+        private void Exit_BugBareSmoke(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void testButton_Click(object sender, EventArgs e)
-        {
-
-            DialogResult result = readFileDialog.ShowDialog(); // Show the dialog.
-	        if (result == DialogResult.OK) // Test result.
-	        {
-		        string file = readFileDialog.FileName;       
-
-                Excel.Application xlApp;
-                Excel.Workbook xlWorkBook;
-                Excel.Worksheet xlWorkSheet;
-                Excel.Range range;
-            
-
-                HttpClientHandler httpClientHandler = new HttpClientHandler();
-                httpClientHandler.AllowAutoRedirect = true;
-
-                HttpResponseMessage response;
-
-                string sourceUrl;
-                string expectedUrl;
-                string actualUrl;
-                string expectedTitle;
-                string actualTitle;
-                int expectedStatusCode;
-                int actualStatusCode;
-                int rCnt = 0;
-                string resultFile = string.Format("Smoke-TestResults-{0:yyyy-MM-dd_hh-mm-ss-tt}.xls",
-	                            DateTime.Now);
-
-                xlApp = new Excel.Application();
-                xlWorkBook = xlApp.Workbooks.Open(file, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-                xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
-                IWebDriver driver = new FirefoxDriver();
-
-                
-                range = xlWorkSheet.UsedRange;
-                int tRows = range.Rows.Count - 1;
-                int tCols = range.Columns.Count;
-
-                if (MessageBox.Show("TOTAL NUMBER OF ROWS TO TEST: " + tRows + "\n" 
-                    + "ROWS: " 
-                    + tRows 
-                    + "\nCOLUMNS: " 
-                    + tCols 
-                    , "TOTAL NUMBER OF TESTS",
-                    MessageBoxButtons.OKCancel,
-                    MessageBoxIcon.Asterisk,
-                    MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
-                {
-                    releaseObject(xlWorkSheet);
-                    releaseObject(xlWorkBook);
-                    releaseObject(xlApp);
-                    Application.Exit();
-                    driver.Quit();
-                }
-
-                Excel.Worksheet xlWorkSheetResult;
-                xlWorkSheetResult = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(2);
-                object misValue = System.Reflection.Missing.Value;
-                xlWorkSheetResult.Name = string.Format("TestResults-{0:yyyy-MM-dd}",DateTime.Today);
-                xlWorkSheetResult.Cells[1, 1] = "SOURCE URL ";
-                xlWorkSheetResult.Cells[1, 2] = "EXPECTED DESTINATION URL";
-                xlWorkSheetResult.Cells[1, 3] = "ACTUAL DESTINATION URL";
-                xlWorkSheetResult.Cells[1, 4] = "EXPECTED HTTP RESPONSE CODE";
-                xlWorkSheetResult.Cells[1, 5] = "ACTUAL HTTP RESPONSE CODE";
-                xlWorkSheetResult.Cells[1, 6] = "EXPECTED PAGE TITLE";
-                xlWorkSheetResult.Cells[1, 7] = "ACTUAL PAGE TITLE";
-                xlWorkSheetResult.Cells[1, 8] = "RESULT";
-           
-                for (rCnt = 1; rCnt <= range.Rows.Count; rCnt++)
-                {
-
-                    sourceUrl = (string)(range.Cells[rCnt, 1] as Excel.Range).Value2;
-                    string sPattern = "(http\\s?)";
-                    
-
-                        
-                   if (System.Text.RegularExpressions.Regex.IsMatch(sourceUrl, sPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
-                    { 
-
-
-                       HttpClient client = new HttpClient(httpClientHandler);
-                       try 
-                       {
-                           response = client.GetAsync(sourceUrl).Result;
-                           actualStatusCode = (int)response.StatusCode;
-                           driver.Navigate().GoToUrl(sourceUrl);
-                           expectedUrl = (string)(range.Cells[rCnt, 2] as Excel.Range).Value2;
-                           actualUrl = driver.Url.ToString();
-                           expectedStatusCode = (int)(range.Cells[rCnt, 3] as Excel.Range).Value2;
-                           expectedTitle = (string)(range.Cells[rCnt, 4] as Excel.Range).Value2;
-                           actualTitle = driver.Title;
-
-                           try
-                           {
-                               StringAssert.AreEqualIgnoringCase(expectedUrl, actualUrl);
-                               Assert.AreEqual(expectedStatusCode, actualStatusCode);
-                               StringAssert.AreEqualIgnoringCase(expectedTitle, actualTitle);
-                               xlWorkSheetResult = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(2);
-                               xlWorkSheetResult.Cells[rCnt, 1] = sourceUrl;
-                               xlWorkSheetResult.Cells[rCnt, 2] = expectedUrl;
-                               xlWorkSheetResult.Cells[rCnt, 3] = actualUrl;
-                               xlWorkSheetResult.Cells[rCnt, 4] = expectedStatusCode.ToString();
-                               xlWorkSheetResult.Cells[rCnt, 5] = actualStatusCode.ToString();
-                               xlWorkSheetResult.Cells[rCnt, 6] = expectedTitle;
-                               xlWorkSheetResult.Cells[rCnt, 7] = actualTitle;
-                               xlWorkSheetResult.Cells[rCnt, 8] = "PASSED";
-                           }
-                           catch (AssertionException AE)
-                           {
-                               xlWorkSheetResult = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(2);
-                               xlWorkSheetResult.Cells[rCnt, 1] = sourceUrl;
-                               xlWorkSheetResult.Cells[rCnt, 2] = expectedUrl;
-                               xlWorkSheetResult.Cells[rCnt, 3] = actualUrl;
-                               xlWorkSheetResult.Cells[rCnt, 4] = expectedStatusCode.ToString();
-                               xlWorkSheetResult.Cells[rCnt, 5] = actualStatusCode.ToString();
-                               xlWorkSheetResult.Cells[rCnt, 6] = expectedTitle;
-                               xlWorkSheetResult.Cells[rCnt, 7] = actualTitle;
-                               xlWorkSheetResult.Cells[rCnt, 8] = "*****FAILED*****";
-                               if (MessageBox.Show("********************ERROR********************"
-                                   + "\nROW: "
-                                   + rCnt
-                                   + "\nSOURCE URL: "
-                                   + sourceUrl
-                                   + "\nEXPECTED DESTINATION URL: "
-                                   + expectedUrl
-                                   + "\nACTUAL DESTINATION URL: "
-                                   + actualUrl
-                                   + "\nEXPECTED HTTP RESPONSE CODE: "
-                                   + expectedStatusCode.ToString()
-                                   + "\nACTUAL HTTP RESPONSE CODE: "
-                                   + actualStatusCode.ToString()
-                                   + "\nEXPECTED DESTINATION PAGE TITLE: "
-                                   + expectedTitle
-                                   + "\nACTUAL DESTINATION PAGE TITLE: "
-                                   + actualTitle
-                                   + "\n============================================="
-                                   + "\nNUNIT Says: "
-                                   + "\n"
-                                   + AE.ToString(),
-                                   "*****FAILED*****",
-                                   MessageBoxButtons.OKCancel,
-                                   MessageBoxIcon.Error,
-                                   MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
-                               {
-                                   xlWorkBook.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
-                                   xlWorkBook.Close(true, misValue, misValue);
-                                   xlApp.Quit();
-                                   driver.Quit();
-                                   releaseObject(xlWorkSheet);
-                                   releaseObject(xlWorkSheetResult);
-                                   releaseObject(xlWorkBook);
-                                   releaseObject(xlApp);
-
-                                   Application.Exit();
-                               }
-
-                               /*                            if (MessageBox.Show("Do you want to quit?", "DEBUG", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                                                           {
-                                                               xlWorkBookNew.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
-                                                               xlWorkBookNew.Close(true, misValue, misValue);
-                                                               xlWorkBook.Close(true, null, null);
-                                                               xlApp.Quit();
-                                                               driver.Quit();
-
-                                                               releaseObject(xlWorkSheet);
-                                                               releaseObject(xlWorkBook);
-                                                               releaseObject(xlWorkSheetNew);
-                                                               releaseObject(xlWorkBookNew);
-                                                               releaseObject(xlApp);
-
-                                                               Application.Exit(); 
-                                                           } */
-                           }
-
-                       }
-
-                       catch (Exception Timeout)
-                       {
-                           xlWorkSheetResult.Cells[rCnt, 1] = sourceUrl;
-                           xlWorkSheetResult.Cells[rCnt, 2] = (range.Cells[rCnt, 2] as Excel.Range).Value2;
-                           xlWorkSheetResult.Cells[rCnt, 3] = driver.Url;
-                           xlWorkSheetResult.Cells[rCnt, 4] = (range.Cells[rCnt, 3] as Excel.Range).Value2;
-                           xlWorkSheetResult.Cells[rCnt, 5] = client.GetAsync(sourceUrl).Result.StatusCode;
-                           xlWorkSheetResult.Cells[rCnt, 6] = (range.Cells[rCnt, 4] as Excel.Range).Value2;
-                           xlWorkSheetResult.Cells[rCnt, 7] = driver.Title;
-                           xlWorkSheetResult.Cells[rCnt, 8] = "*****TIMEOUT*****";
-                           driver.Navigate().Back();
-                           rCnt++;
-                           MessageBox.Show(
-                           Timeout.ToString()
-                           + "\nFound before ROW: "
-                           + rCnt.ToString(),
-                           "********************TIMEOUT********************",
-                           MessageBoxButtons.OK,
-                           MessageBoxIcon.Error);
-                       }
-                    }                    
-                }
-
-
-                MessageBox.Show("TESTS COMPLETED");
-                xlWorkBook.SaveAs(resultFile, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
-                xlWorkBook.Close(true, misValue, misValue);
-
-                MessageBox.Show("Excel file created , you can find the file at z:\\" + resultFile);
-
-
-                xlApp.Quit();
-                driver.Quit();
-
-                releaseObject(xlWorkSheet);
-                releaseObject(xlWorkSheetResult);
-                releaseObject(xlWorkBook);
-                releaseObject(xlApp);
-
-
-                Application.Exit();
-            }
-        }
     }
 }
